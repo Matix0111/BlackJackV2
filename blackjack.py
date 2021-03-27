@@ -9,20 +9,38 @@ class Blackjack():
 
         if won == 'dealer':
             currentChips -= self.bet
+            print(f'You lost {self.bet} chips.')
         elif won == 'user':
             currentChips += self.bet
-
+            print(f'You won {self.bet} chips.')
+        
         cur.execute(f"UPDATE users SET chips = (?) WHERE username = ?", (currentChips, username))
         con.commit()
 
     def placeBet(self):
-        bet = int(input('How many chips do you bet?: '))
-
-        if bet < 500:
-            print('You must bet 500 or more!')
-        else:
-            self.bet = bet
-
+        validBet = False
+        error = False
+        while not validBet:
+            try:
+                bet = int(input('How many chips do you bet?: '))
+            except ValueError:
+                print('Invalid bet amount.')
+                error = True
+            
+            if error:
+                pass
+                error = False
+            else:
+                if bet < 500:
+                    print('You must bet 500 or more!')
+                else:
+                    chipAmount = self.fetchChips()
+                    if bet > chipAmount:
+                        print(f"You don't have {bet} chips.")
+                    else:
+                        self.bet = bet
+                        validBet = True
+            
     def fetchChips(self):
         getChips = (f'{self.username}',)
         currentChips = cur.execute('SELECT chips FROM users WHERE username=?', getChips)
